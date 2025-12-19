@@ -1,7 +1,7 @@
 # M_search_algorithms.py
 from collections import deque
 import heapq
-from M_problem import GOAL_STATE, get_successors
+from gui.M_problem import GOAL_STATE, get_successors
 
 def bfs(start):
     queue = deque([(start, [start])])
@@ -77,7 +77,7 @@ def astar(start):
     return None, nodes_expanded# M_search_algorithms.py
 from collections import deque
 import heapq
-from M_problem import GOAL_STATE, get_successors
+from gui.M_problem import GOAL_STATE, get_successors
 
 def bfs(start):
     queue = deque([(start, [start])])
@@ -153,7 +153,7 @@ def astar(start):
     return None, nodes_expanded# M_search_algorithms.py
 from collections import deque
 import heapq
-from M_problem import GOAL_STATE, get_successors
+from gui.M_problem import GOAL_STATE, get_successors
 
 def bfs(start):
     queue = deque([(start, [start])])

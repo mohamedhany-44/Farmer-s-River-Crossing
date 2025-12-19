@@ -2,8 +2,8 @@
 import tkinter as tk
 from tkinter import ttk
 import time
-from M_problem import INITIAL_STATE
-from M_search_algorithms import bfs, dfs, astar
+from gui.M_problem import INITIAL_STATE
+from gui.M_search_algorithms import bfs, dfs, astar
 
 class RiverCrossingGUI:
     def __init__(self, root):

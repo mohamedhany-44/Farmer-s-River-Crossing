@@ -1,8 +1,8 @@
 # main.py
 
 import time
-from M_problem import INITIAL_STATE
-from M_search_algorithms import bfs, dfs, astar
+from gui.M_problem import INITIAL_STATE
+from gui.M_search_algorithms import bfs, dfs, astar
 
 algorithms = {
     "BFS": bfs,
