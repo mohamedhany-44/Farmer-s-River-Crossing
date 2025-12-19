@@ -264,12 +264,6 @@ Goal reached safely
     - Displays current state after each move
         
     - Shows chosen action
-        
-- Optional GUI:
-    
-    - Tkinter riverbanks visualization
-        
-    - Step-by-step animation of crossings
 
 ---
 
