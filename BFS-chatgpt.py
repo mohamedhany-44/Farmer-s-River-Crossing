@@ -7,62 +7,73 @@ items = ["Farmer", "Fox", "Goat", "Cabbage"]
 
 def is_valid(state):
     F, X, G, C = state
-    # Fox with Goat without Farmer
     if X == G and F != X:
         return False
-    # Goat with Cabbage without Farmer
     if G == C and F != G:
         return False
     return True
 
-def get_next_states(state):
+def get_next_states_with_move(state):
     F, X, G, C = state
     moves = []
+
     # Farmer moves alone
-    moves.append((1 - F, X, G, C))
+    new_state = (1 - F, X, G, C)
+    if is_valid(new_state):
+        moves.append((new_state, "Farmer"))
+
     # Farmer moves with Fox
     if F == X:
-        moves.append((1 - F, 1 - X, G, C))
+        new_state = (1 - F, 1 - X, G, C)
+        if is_valid(new_state):
+            moves.append((new_state, "Farmer + Fox"))
+
     # Farmer moves with Goat
     if F == G:
-        moves.append((1 - F, X, 1 - G, C))
+        new_state = (1 - F, X, 1 - G, C)
+        if is_valid(new_state):
+            moves.append((new_state, "Farmer + Goat"))
+
     # Farmer moves with Cabbage
     if F == C:
-        moves.append((1 - F, X, G, 1 - C))
-    # Keep only valid states
-    return [s for s in moves if is_valid(s)]
+        new_state = (1 - F, X, G, 1 - C)
+        if is_valid(new_state):
+            moves.append((new_state, "Farmer + Cabbage"))
+
+    return moves
 
 def bfs(start, goal):
     visited = set()
     queue = deque()
-    queue.append((start, [start]))  # (state, path)
+    queue.append((start, [start], []))  # (state, path, moves)
     nodes_expanded = 0
 
     while queue:
-        state, path = queue.popleft()
+        state, path, moves = queue.popleft()
         nodes_expanded += 1
 
         if state == goal:
-            return path, nodes_expanded
+            return path, moves, nodes_expanded
 
         if state in visited:
             continue
 
         visited.add(state)
 
-        for next_state in get_next_states(state):
+        for next_state, move_desc in get_next_states_with_move(state):
             if next_state not in visited:
-                queue.append((next_state, path + [next_state]))
+                queue.append(
+                    (next_state, path + [next_state], moves + [move_desc])
+                )
 
-    return None, nodes_expanded
+    return None, None, nodes_expanded
 
-def print_solution(path):
+def print_solution(path, moves):
     print("BFS Solution:")
     print("=======================")
 
     for i, state in enumerate(path):
-        left = []
-        right = []
+        left, right = [], []
 
         for idx, pos in enumerate(state):
             if pos == 0:
@@ -70,7 +81,12 @@ def print_solution(path):
             else:
                 right.append(items[idx])
 
-        print(f"Step {i}:")
+        if i == 0:
+            print("Step 0: Start")
+        else:
+            direction = "Right Bank" if state[0] == 1 else "Left Bank"
+            print(f"Step {i}: {moves[i-1]} → {direction}")
+
         print("Left bank:", ", ".join(left) if left else "Empty")
         print("Right bank:", ", ".join(right) if right else "Empty")
         print()
@@ -82,11 +98,11 @@ start_state = (0, 0, 0, 0)
 goal_state = (1, 1, 1, 1)
 
 start_time = time.time()
-path, nodes_expanded = bfs(start_state, goal_state)
+path, moves, nodes_expanded = bfs(start_state, goal_state)
 end_time = time.time()
 
 if path:
-    print_solution(path)
+    print_solution(path, moves)
     print(f"Nodes expanded: {nodes_expanded}")
     print(f"Time taken: {end_time - start_time:.6f} seconds")
 else:
