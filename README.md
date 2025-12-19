@@ -1,3 +1,4 @@
+# Farmer–Fox–Goat–Cabbage Puzzle
 
 ## 1. Introduction
 
@@ -294,3 +295,4 @@ The **Farmer–Fox–Goat–Cabbage puzzle** effectively illustrates:
     
 
 ---
+
