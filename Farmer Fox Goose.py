@@ -1,115 +1,109 @@
-# Game characters
-FARMER = "farmer"
-FOX = "fox"
-GOAT = "goat"
-CABBAGE = "cabbage"
+from collections import deque
 
+# Characters
+FARMER, FOX, GOAT, CABBAGE = "farmer", "fox", "goat", "cabbage"
 ALL_ITEMS = [FARMER, FOX, GOAT, CABBAGE]
-
-# banks[0] -> left bank, banks[1] -> right bank
-banks = [ALL_ITEMS.copy(), []]
-
 
 # ---------------- GAME CHECKS ----------------
 
-def has_won():
-    return sorted(banks[1]) == sorted(ALL_ITEMS)
-
-
-def has_lost():
-    for bank in banks:
+def is_valid(state):
+    left, right = state
+    for bank in [left, right]:
         if FARMER not in bank:
             if FOX in bank and GOAT in bank:
-                print("\nThe fox ate the goat.\n")
-                return True
+                return False
             if GOAT in bank and CABBAGE in bank:
-                print("\nThe goat ate the cabbage.\n")
-                return True
-    return False
+                return False
+    return True
 
+def is_goal(state):
+    left, right = state
+    return len(left) == 0
 
-# ---------------- HELPERS ----------------
+# ---------------- HELPER FUNCTIONS ----------------
 
-def farmer_bank():
-    """Return index of the bank where the farmer is"""
-    return 0 if FARMER in banks[0] else 1
+def get_possible_moves(state):
+    left, right = state
+    current_bank = left if FARMER in left else right
+    other_bank = right if FARMER in left else left
 
+    moves = []
 
-def show_banks():
-    for i, bank in enumerate(banks):
-        bank.sort()
-        print(", ".join(f"{idx}. {item}" for idx, item in enumerate(bank)))
-        if i == 0:
-            print("~" * 50)
+    # Farmer moves alone
+    new_current = set(current_bank)
+    new_other = set(other_bank)
+    new_current.remove(FARMER)
+    new_other.add(FARMER)
+    new_state = (frozenset(new_current), frozenset(new_other)) if FARMER in left else (frozenset(new_other), frozenset(new_current))
+    if is_valid(new_state):
+        moves.append((new_state, None))
 
+    # Farmer moves with one item
+    for item in current_bank:
+        if item == FARMER:
+            continue
+        new_current = set(current_bank)
+        new_other = set(other_bank)
+        new_current.remove(FARMER)
+        new_current.remove(item)
+        new_other.add(FARMER)
+        new_other.add(item)
+        new_state = (frozenset(new_current), frozenset(new_other)) if FARMER in left else (frozenset(new_other), frozenset(new_current))
+        if is_valid(new_state):
+            moves.append((new_state, item))
 
-# ---------------- MOVE LOGIC ----------------
+    return moves
 
-def move(item=None):
-    current = farmer_bank()
-    other = 1 - current
+# ---------------- BFS SOLVER ----------------
 
-    # Move farmer
-    banks[other].append(FARMER)
-    banks[current].remove(FARMER)
+def solve():
+    initial_state = (frozenset(ALL_ITEMS), frozenset())
+    queue = deque()
+    queue.append((initial_state, []))
+    visited = set()
 
-    # Move item if chosen
-    if item and item in banks[current]:
-        banks[other].append(item)
-        banks[current].remove(item)
-        print(f"The farmer and the {item} crossed the river.")
-    else:
-        print("The farmer crossed alone.")
+    while queue:
+        state, path = queue.popleft()
+        if state in visited:
+            continue
+        visited.add(state)
 
-    show_banks()
+        if is_goal(state):
+            return path
 
-    if has_lost():
-        print("Game Over!")
-        return True
+        for next_state, move_item in get_possible_moves(state):
+            queue.append((next_state, path + [move_item]))
 
-    if has_won():
-        print("You Win!")
-        return True
+# ---------------- RUN AUTOMATED GAME ----------------
 
-    return False
+def run_game():
+    path = solve()
+    if not path:
+        print("No solution found.")
+        return
 
+    banks = [ALL_ITEMS.copy(), []]
+    print("*" * 50)
+    print("Farmer, Fox, Goat, and Cabbage - Auto Solver")
+    print("*" * 50)
+    print("Boat carries only the farmer + one item.\nRules: Fox eats Goat, Goat eats Cabbage if farmer not present.\n")
 
-# ---------------- PLAYER TURN ----------------
+    for step, item in enumerate(path, 1):
+        current = 0 if FARMER in banks[0] else 1
+        other = 1 - current
+        banks[current].remove(FARMER)
+        banks[other].append(FARMER)
+        if item:
+            banks[current].remove(item)
+            banks[other].append(item)
+            print(f"Step {step}: Farmer takes {item} to the other bank.")
+        else:
+            print(f"Step {step}: Farmer crosses alone.")
+        print(f"Left bank: {banks[0]}")
+        print(f"Right bank: {banks[1]}")
+        print("-" * 50)
 
-def play():
-    while True:
-        print("\n")
-        print("*" * 50)
-        print("Choose item number to move with farmer (or Q to quit):")
-        print("\n")
-        show_banks()
+    print("All items safely crossed! You win!")
 
-        choice = input(">>> ").strip()
-
-        if choice.upper() == "Q":
-            print("Goodbye!")
-            return
-
-        location = farmer_bank()
-
-        if choice.isdigit():
-            index = int(choice)
-            if index < len(banks[location]):
-                if move(banks[location][index]):
-                    return
-
-
-# ---------------- START GAME ----------------
-
-print("*" * 50)
-print("Farmer, Fox, Goat, and cabbage")
-print("*" * 50)
-
-print("""
-Boat carries only the farmer + one item.
-Rules:
-- Fox eats Goat without farmer
-- Goat eats cabbage without farmer
-""")
-
-play()
+# Start the automated game
+run_game()
