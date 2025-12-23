@@ -1,8 +1,3 @@
-"""
-Farmer-Fox-Goat-Cabbage Puzzle Solver
-Intelligent Agent with BFS, DFS, and UCS Algorithms
-"""
-
 import time
 from collections import deque
 import heapq
@@ -260,16 +255,6 @@ class FarmerPuzzleSolver:
         print("  - BFS: Optimal (finds shortest path)")
         print("  - DFS: Not optimal (may find longer path)")
         print("  - UCS: Optimal (finds minimum cost path)")
-        
-        print("\nTime Complexity:")
-        print("  - BFS: O(b^d) where b=branching factor, d=depth")
-        print("  - DFS: O(b^m) where m=maximum depth")
-        print("  - UCS: O(b^(C*/ε)) where C*=optimal cost")
-        
-        print("\nSpace Complexity:")
-        print("  - BFS: O(b^d) - stores all frontier nodes")
-        print("  - DFS: O(bm) - linear in depth")
-        print("  - UCS: O(b^(C*/ε))")
         
         print("\nBest for this problem:")
         print("  - For optimal solution: BFS or UCS")
