@@ -41,36 +41,86 @@ def successors(s):
 # Uniform Cost Search
 # -----------------------------------
 def UCS():
-    pq = [(0, START, [])]   # (cost, state, path)
+    pq = [(0, START, [START], [])]   # (cost, state, path, moves)
     visited = set()
 
     while pq:
-        cost, state, path = heapq.heappop(pq)
+        cost, state, path, moves = heapq.heappop(pq)
 
         if state in visited:
             continue
         visited.add(state)
 
         if state == GOAL:
-            return cost, path
+            return cost, path, moves
 
         for action, next_state in successors(state):
             heapq.heappush(
                 pq,
-                (cost + 1, next_state, path + [(action, next_state)])
+                (cost + 1, next_state, path + [next_state], moves + [action])
             )
 
     return None
 
 # -----------------------------------
-# Run
+# Print state function similar to solver
 # -----------------------------------
+def print_state(state):
+    """Display the current state visually"""
+    items = ["Farmer", "Fox", "Goat", "Cabbage"]
+    left_bank = []
+    right_bank = []
+    
+    for i, item in enumerate(items):
+        if state[i] == 0:
+            left_bank.append(item)
+        else:
+            right_bank.append(item)
+    
+    print(f"Left Bank:  {', '.join(left_bank) if left_bank else 'Empty'}")
+    print(f"Right Bank: {', '.join(right_bank) if right_bank else 'Empty'}")
+    print("-" * 40)
+
+# -----------------------------------
+# Print solution like the solver
+# -----------------------------------
+def print_solution(path, moves, cost):
+    """Display the complete solution with steps"""
+    print(f"\n{'='*60}")
+    print(f"UNIFORM COST SEARCH SOLUTION")
+    print(f"{'='*60}")
+    
+    for i, state in enumerate(path):
+        if i == 0:
+            print(f"\nStep 0: Initial State")
+        else:
+            print(f"\nStep {i}: {moves[i-1]}")
+        
+        print_state(state)
+    
+    print(f"\nTotal steps: {len(path) - 1}")
+    print(f"Total cost: {cost}")
+    print(f"{'='*60}")
+
+# -----------------------------------
+# Run UCS with enhanced output
+# -----------------------------------
+print("="*80)
+print("UNIFORM COST SEARCH FOR FARMER-FOX-GOAT-CABBAGE PUZZLE")
+print("="*80)
+
 result = UCS()
 
 if result:
-    cost, path = result
-    print("Minimum crossings:", cost, "\n")
-    for i, (action, state) in enumerate(path, 1):
+    cost, path, moves = result
+    print_solution(path, moves, cost)
+    
+    # Also print the simple step-by-step format from original
+    print("\n" + "="*60)
+    print("STEP-BY-STEP SOLUTION")
+    print("="*60)
+    print(f"Minimum crossings: {cost}")
+    for i, (action, state) in enumerate(zip(moves, path[1:]), 1):
         print(f"{i}. {action} -> {state}")
 else:
-    print("No solution")
+    print("No solution found!")
