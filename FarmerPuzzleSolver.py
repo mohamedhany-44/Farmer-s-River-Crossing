@@ -120,6 +120,38 @@ class FarmerPuzzleSolver:
     
     def dfs(self):
         """Depth-First Search - Memory efficient"""
+        # State: (Farmer, Fox, Goat, Cabbage)
+
+
+        items = ["Farmer", "Fox", "Goat", "Cabbage"]
+
+
+        def is_valid(state):
+            F, X, G, C = state
+            if X == G and F != X:
+                return False
+            if G == C and F != G:
+                return False
+            return True
+            
+        def get_next_states(state):
+            F, X, G, C = state
+            moves = []
+            
+            moves.append((1 - F, X, G, C)) 
+            
+            if F == X: 
+                moves.append((1 - F, 1 - X, G, C))
+                
+            if F == G: 
+                moves.append((1 - F, X, 1 - G, C))
+                
+            
+            if F == C:
+                moves.append((1 - F, X, G, 1 - C))
+                
+            return [s for s in moves if is_valid(s)]
+        
         self.nodes_expanded = 0
         visited = set()
         stack = []
@@ -138,13 +170,28 @@ class FarmerPuzzleSolver:
             if state == self.goal_state:
                 return path, moves
             
-            for next_state, move_desc in self.get_successors(state):
+            for next_state in get_next_states(state):
                 if next_state not in visited:
+                    move_desc = self._get_move_description(state, next_state)
                     stack.append((next_state, 
                                  path + [next_state], 
                                  moves + [move_desc]))
         
         return None, None
+    
+    def _get_move_description(self, old_state, new_state):
+        """Helper function to describe the move"""
+        F_old, X_old, G_old, C_old = old_state
+        F_new, X_new, G_new, C_new = new_state
+        
+        if X_old != X_new:
+            return "Farmer takes Fox"
+        elif G_old != G_new:
+            return "Farmer takes Goat"
+        elif C_old != C_new:
+            return "Farmer takes Cabbage"
+        else:
+            return "Farmer alone"
     
     def ucs(self):
         """Uniform Cost Search - Optimal cost solution"""
